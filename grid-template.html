@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <!-- demo root element -->
+  <div id="grid-demo">
+    <form>
+      <label for="search">Search</label>
+      <input type="text" id="search" v-model="searchQuery">
+    </form>
+    <demo-grid
+      :infors="gridInfors"
+      :columns="gridColumns"
+      :filter-key="searchQuery"
+    ></demo-grid>  
+  </div>
+  <!-- component template -->
+  <script type="text/x-template" id="grid-template">
+    <table>
+      <thead>
+        <tr>
+          <th v-for="title in columns"
+              @click="sortBy(title)"
+              :class="{active: sortKey == title}"
+          >
+            <!-- Vue过滤器 -->
+            {{title | capitalize}}
+            <!-- 按钮样式 -->
+            <span class="arrow" :class="sortOrders[title] > 0 ? 'asc' : 'dsc'" ></span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="infor in filteredInfor">
+          <td>
+            {{}}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </script>
+  <script>
+  Vue.component('demo-grid',{
+    template: '#grid-template',
+    props: {
+      infors: Array,
+      columns: Array,
+      filterKey: String
+    },
+    data: function () {
+      var sortOrders = {}
+      this.columns.forEach(function(key){
+        sortOrders[key] = 1
+      })
+      return {
+        sortKey: '',
+        sortOrders
+      }
+    },
+    computed: {
+      filteredInfor () {
+        // && 与 a&&b 只要a为false则返回a,只要a为true则返回b
+        var filterKey = this.filterKey && this.filterKey.toLowerCase()
+        // 初始状态为1，一旦监听到点击事件变为-10
+        var order = this.sortOrders[sortKey] || 1
+        var infors = this.infors
+        if (filterKey) {
+          infors = infors.filter(function (infor) {
+            // Object.key返回对象的所有属性名组成的字符串数组
+            return Object.keys(infor).some(function (key) {
+              return String(infor[key]).toLowerCase().indexOf(filterKey) > -1
+            })
+          })
+        }
+      }
+    },
+    filters: {
+      capitalize: function (str) {
+        return str.charAt(0).toUpperCase() + str.slice(1)
+      }
+    },
+    methods: {
+      // 监听点击事件更改排序与样式
+      sortBy (title) {
+        this.sortKey = title
+        this.sortOrders[title] = this.sortOrders[title] * -1
+      }
+    }
+  })
+  var vm = new Vue({
+    el: '#grid-demo',
+    data: {
+      gridInfors: [
+        {name: 'Chuck Norris', power: "Infinity"},
+        {name: 'Bruce Lee', power: 9000},
+        {name: 'Jackie Chan', power: 7000},
+        {name: 'Jet Li', power: 8000},
+      ],
+      gridColumns: ['name','power'],
+      searchQuery: ''
+    },
+    computed:{
+      filterInfor(){
+        return this.search()
+      }
+    }
+  })
+  </script>
+</body>
+</html>
