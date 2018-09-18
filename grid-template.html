@@ -72,7 +72,7 @@
         var infors = this.infors
         if (filterKey) {
           infors = infors.filter(function (infor) {
-            // Object.key返回对象的所有属性名组成的字符串数组
+            // Object.key返回对象的所有属性名组成的字符串数组。
             return Object.keys(infor).some(function (key) {
               return String(infor[key]).toLowerCase().indexOf(filterKey) > -1
             })
