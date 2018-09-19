@@ -5,6 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
+  <style>
+    body {
+      color: #444;
+      font-size: 14px;
+    }
+    table {
+      border: 2px solid #42b983;
+      border-radius: 3px
+    }
+    thead {
+      background-color: #42b983;
+    }
+    tbody {
+      background-color: #f9f9f9
+    }
+    th {
+      width:100px;
+      padding: 5px;
+      color: rgba(255,255,255,0.66)
+    }
+    td {
+      padding: 10px
+    }
+    th.active {
+      color: white
+    }
+    th.active .arrow {
+      opacity: 1;
+    }
+    .arrow {
+      display: inline-block;
+      vertical-align: middle;
+      width: 0;
+      height: 0;
+      margin-left:5px;
+      opacity: 0.66;
+    }
+    .arrow.asc {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 4px solid #fff;
+}
+
+.arrow.dsc {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #fff;
+}
+  </style>
 </head>
 <body>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -38,8 +87,8 @@
       </thead>
       <tbody>
         <tr v-for="infor in filteredInfor">
-          <td>
-            {{}}
+          <td v-for="key in columns">
+            {{infor[key]}}
           </td>
         </tr>
       </tbody>
@@ -65,22 +114,33 @@
     },
     computed: {
       filteredInfor () {
+        var sortKey = this.sortKey
         // && 与 a&&b 只要a为false则返回a,只要a为true则返回b
         var filterKey = this.filterKey && this.filterKey.toLowerCase()
-        // 初始状态为1，一旦监听到点击事件变为-10
+        // 初始状态为1，一旦监听到点击事件变为-1
         var order = this.sortOrders[sortKey] || 1
         var infors = this.infors
         if (filterKey) {
           infors = infors.filter(function (infor) {
             // Object.key返回对象的所有属性名组成的字符串数组。
             return Object.keys(infor).some(function (key) {
+              // 查询infor对象里属性值中是否含有filterKey字符
               return String(infor[key]).toLowerCase().indexOf(filterKey) > -1
             })
           })
         }
+        if (sortKey) {
+          infors = infors.slice().sort(function (a,b) {
+            a = a[sortKey]
+            b = b[sortKey]
+            return (a === b ? 0 : a > b ? 1 : -1) * order
+          })  
+        }
+        return infors
       }
     },
     filters: {
+      // 标题首字母大写
       capitalize: function (str) {
         return str.charAt(0).toUpperCase() + str.slice(1)
       }
